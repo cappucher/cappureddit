@@ -4,8 +4,8 @@ import { RESET_TABLES } from "./constants";
 import express, { Express } from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
-import HelloResolver from "./resolvers/hello";
 import PostResolver from "./resolvers/post";
+import UserResolver from "./resolvers/user";
 
 const main = async (): Promise<void> => {
     await sequelize.sync({ force: RESET_TABLES });
@@ -14,7 +14,7 @@ const main = async (): Promise<void> => {
 
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [HelloResolver, PostResolver]
+            resolvers: [PostResolver, UserResolver]
         })
     })
 
