@@ -1,9 +1,11 @@
-import { Arg, Field, InputType, Mutation, ObjectType, Resolver } from "type-graphql";
+import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import * as dotenv from "dotenv"
 import bcrypt from "bcrypt"
 import User from "../models/User";
+import { Context } from "../types";
 
 dotenv.config({ path: '.env.local' });
+
 
 @InputType()
 class UsernameAndPassword {
@@ -34,6 +36,22 @@ class LoginError {
 
 @Resolver()
 class UserResolver {
+    @Query(() => User, { nullable: true })
+    async me(
+        @Ctx() { req }: Context
+    ) {
+        // @ts-ignore
+        if (!req.session.userId){
+            return null;
+        }
+        return await User.findOne({
+            where: {
+                // @ts-ignore
+                id: req.session.userId
+            }
+        })
+    }
+
     @Mutation(() => LoginResponse)
     async register(
         @Arg("input") input: UsernameAndPassword
@@ -48,7 +66,7 @@ class UserResolver {
                 }]
             }
         }
-        else if (input.username.length < 3 || input.username.length >= 50){
+        else if (input.username.length < 3 || input.username.length >= 50) {
             return {
                 errors: [{
                     error: "password",
@@ -71,19 +89,20 @@ class UserResolver {
                 }]
             }
         }
-        
+
     }
 
     @Mutation(() => LoginResponse)
     async login(
-        @Arg("input") input: UsernameAndPassword
+        @Arg("input") input: UsernameAndPassword,
+        @Ctx() { req }: Context
     ) {
         const user = await User.findOne({
             where: {
                 username: input.username
             }
         })
-        console.log("finished step1")
+
         if (!user) {
             return {
                 errors: [{
@@ -92,6 +111,7 @@ class UserResolver {
                 }]
             }
         }
+
         const valid = await bcrypt.compare(input.password, user.password);
         if (!valid) {
             return {
@@ -101,7 +121,8 @@ class UserResolver {
                 }]
             }
         }
-        console.log(user.username)
+        // @ts-ignore
+        req.session.userId = user.id;
         return {
             user: user
         };
