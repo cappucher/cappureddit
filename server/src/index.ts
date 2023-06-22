@@ -20,7 +20,7 @@ const main = async (): Promise<void> => {
     const app: Express = express();
 
     const client = createClient({
-        url: "rediss://default:8b98f334ebc5415abe74dd04ee7e2a15@communal-locust-39181.upstash.io:39181"
+        url: process.env.REDIS_URL
     });
     
     client.on("error", function (err) {
@@ -38,7 +38,7 @@ const main = async (): Promise<void> => {
 
     app.use(
         session({
-            name: "cookie",
+            name: "current_id",
             store: redisStore,
             resave: false,
             cookie: {
