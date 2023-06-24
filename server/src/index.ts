@@ -24,7 +24,7 @@ const main = async (): Promise<void> => {
     });
     
     client.on("error", function (err) {
-        throw err;
+        console.log(err);
     });
     
     
