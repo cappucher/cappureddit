@@ -41,7 +41,9 @@ class UserResolver {
         @Ctx() { req }: Context
     ) {
         // @ts-ignore
-        if (!req.session.userId){
+        console.log("id: ", req.session.userId)
+        // @ts-ignore
+        if (!req.session.userId) {
             return null;
         }
         return await User.findOne({
@@ -123,6 +125,8 @@ class UserResolver {
         }
         // @ts-ignore
         req.session.userId = user.id;
+        // @ts-ignore
+        console.log(req.session.userId);
         return {
             user: user
         };

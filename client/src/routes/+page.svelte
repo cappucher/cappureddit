@@ -1,48 +1,50 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { setClient } from "svelte-apollo";
-  import { client } from "../apolloClient";
-  import { mutation } from "svelte-apollo";
+  // import { setClient } from "svelte-apollo";
+  // import { mutation } from "svelte-apollo";
   import { LoginUserDoc, RegisterUserDoc } from "../generated/generated";
   import Navbar from "./components/navbar.svelte";
+  // import type { FetchResult } from "@apollo/client";
 
-  setClient(client);
-
-  const registerUser = mutation(RegisterUserDoc);
-  const loginUser = mutation(LoginUserDoc);
+  // const registerUser = mutation(RegisterUserDoc);
+  // const loginUser = mutation(LoginUserDoc);
 
   let userData: any;
 
-  onMount(async () => {
-    console.log("onMount");
-    try {
-      userData = await getUserData();
-      console.log("userData", userData);
-    } catch (error) {
-      console.log(error);
-    }
-  });
+//   onMount(async () => {
+//     console.log("onMount");
+//     try {
+//       userData = await getUserData();
+//       console.log("userData", userData);
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   });
 
-  async function getUserData() {
-    console.log("getUserData");
-    const user = await loginUser({
-      variables: {
-        username: "Johnny",
-        password: "asdf",
-      },
-    });
-    console.log("user", user);
-    return user;
-  }
+  // let data: FetchResult<any>;
+
+  // async function getUserData() {
+  //   console.log("getUserData");
+  //   const user = await loginUser({
+  //     variables: {
+  //       username: "Johnny",
+  //       password: "asdf",
+  //     },
+  //   });
+  //   console.log("user", user);
+  //   data = user;
+  //   return user;
+  // }
 </script>
+
+<svelte:head>
+  <title>Home - Cappureddit</title>
+</svelte:head>
 
 <main>
   <Navbar />
-  {#await userData}
-    <p>...waiting</p>
-  {:then data}
-    <pre>{JSON.stringify(data)}</pre>
-  {:catch error}
-    there was an error: {error}
-  {/await}
+  <!-- <pre>{JSON.stringify(data)}</pre>
+  <button on:click={getUserData}>
+    button
+  </button> -->
 </main>

@@ -22,14 +22,14 @@ const main = async (): Promise<void> => {
     const client = createClient({
         url: process.env.REDIS_URL
     });
-    
+
     client.on("error", function (err) {
         console.log(err);
     });
-    
-    
+
+
     await client.connect()
-    
+
     // Initialize store.
     const redisStore = new RedisStore({
         client: client,
@@ -43,8 +43,8 @@ const main = async (): Promise<void> => {
             resave: false,
             cookie: {
                 maxAge: 1000 * 60 * 60 * 24 * 14, // two weeks
-                httpOnly: true,
-                sameSite: "lax"
+                httpOnly: false,
+                sameSite: "lax",
             },
             saveUninitialized: false,
             secret: process.env.SESSION_SECRET!,
@@ -63,7 +63,12 @@ const main = async (): Promise<void> => {
 
 
     await apolloServer.start();
-    apolloServer.applyMiddleware({ app });
+    apolloServer.applyMiddleware({
+        app, cors: {
+            origin: 'http://localhost:5173', // replace with your client app's url
+            credentials: true,
+        },
+    });
 
     app.listen(4000, () => {
         console.log("server listening on http://localhost:4000/graphql");

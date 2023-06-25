@@ -1,6 +1,6 @@
-import { client } from "../apolloClient";
+import { client } from "../client";
 import type {
-  MutationOptions
+  ApolloQueryResult, ObservableQuery, WatchQueryOptions, MutationOptions
 } from "@apollo/client";
 import { readable } from "svelte/store";
 import type { Readable } from "svelte/store";
@@ -110,6 +110,11 @@ export type LoginUserMutationVariables = Exact<{
 
 export type LoginUserMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginResponse', user?: { __typename?: 'User', id: number, createdAt: any, username: string } | null, errors?: Array<{ __typename?: 'LoginError', message: string, error: string }> | null } };
 
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, createdAt: any } | null };
+
 export type RegisterUserMutationVariables = Exact<{
   username: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -131,6 +136,15 @@ export const LoginUserDoc = gql`
       message
       error
     }
+  }
+}
+    `;
+export const MeDoc = gql`
+    query me {
+  me {
+    id
+    username
+    createdAt
   }
 }
     `;
@@ -161,6 +175,41 @@ export const loginUser = (
   });
   return m;
 }
+export const me = (
+  options: Omit<
+    WatchQueryOptions<MeQueryVariables>,
+    "query"
+  >
+): Readable<
+  ApolloQueryResult<MeQuery> & {
+    query: ObservableQuery<
+      MeQuery,
+      MeQueryVariables
+    >;
+  }
+> => {
+  const q = client.watchQuery({
+    query: MeDoc,
+    ...options,
+  });
+  var result = readable<
+    ApolloQueryResult<MeQuery> & {
+      query: ObservableQuery<
+        MeQuery,
+        MeQueryVariables
+      >;
+    }
+  >(
+    { data: {} as any, loading: true, error: undefined, networkStatus: 1, query: q },
+    (set) => {
+      q.subscribe((v: any) => {
+        set({ ...v, query: q });
+      });
+    }
+  );
+  return result;
+}
+
 export const registerUser = (
   options: Omit<
     MutationOptions<any, RegisterUserMutationVariables>,
